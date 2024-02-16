@@ -16,8 +16,9 @@
 /// doesn't support the regular struct update syntax:
 /// ```rust
 /// # use nanotricks::anon;
+/// let two = "two";
 /// let anon1 = anon! {
-///     two: "two",
+///     two,
 ///     three: 3,
 /// };
 ///
@@ -35,7 +36,7 @@
 macro_rules! anon {
     (
         $(
-            $field:ident: $value:expr,
+            $field:ident $(: $value:expr)? ,
         )*
         $(
             [ $($spread_field:ident),+ ]: .. $spread:expr,
@@ -56,7 +57,7 @@ macro_rules! anon {
 
             $crate::spread!(
                 Anon {
-                    $( $field: $value, )*
+                    $( $field $(: $value)? , )*
                     $( [ $($spread_field),+ ]: .. $spread, )*
                 }
             )
