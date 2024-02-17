@@ -4,7 +4,7 @@
 ///
 /// ## Exemple
 /// ```rust
-/// # use nanotricks::clone;
+/// # use nanotweaks::clone;
 /// # fn consume<T>(_: T) {
 /// #     // ...
 /// # }

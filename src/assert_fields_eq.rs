@@ -18,7 +18,7 @@ pub use similar_asserts::assert_eq;
 /// [`similar_asserts::assert_eq!`]: https://docs.rs/similar-asserts/1.5.0/similar_asserts/macro.assert_eq.html
 ///
 /// ```rust
-/// # use nanotricks::{anon, assert_fields_eq};
+/// # use nanotweaks::{anon, assert_fields_eq};
 ///
 /// #[derive(Clone, Debug)]
 /// struct Exemple {

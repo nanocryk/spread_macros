@@ -2,7 +2,7 @@
 /// usage. The anonymous type automatically derive `Copy`, `Clone`, `Debug`, `PartialEq` and `Eq` if
 /// all fields do so. macro.
 /// ```rust
-/// # use nanotricks::anon;
+/// # use nanotweaks::anon;
 /// let anon = anon!(
 ///     one: 1,
 ///     two: "two",
@@ -15,7 +15,7 @@
 /// It also supports spreading fields from other structs like the [`spread!`](crate::spread!) macro, however it
 /// doesn't support the regular struct update syntax:
 /// ```rust
-/// # use nanotricks::anon;
+/// # use nanotweaks::anon;
 /// let two = "two";
 /// let anon1 = anon! {
 ///     two,

@@ -7,7 +7,7 @@
 /// [struct update syntax]: https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax
 ///
 /// ```rust
-/// # use nanotricks::spread;
+/// # use nanotweaks::spread;
 /// // `User` don't impl `Default` as they are no proper defaults for `username` and `password`.
 /// #[derive(Debug, PartialEq, Eq)]
 /// struct User {
