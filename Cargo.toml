@@ -1,6 +1,6 @@
 [package]
 name = "nanotweaks"
-version = "0.1.0"
+version = "0.1.1"
 authors = [ "nanocryk" ]
 description = "Collection of tools to write cleaner and shorter code"
 edition = "2021"
