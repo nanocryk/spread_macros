@@ -2,7 +2,10 @@
 name = "nanotricks"
 version = "0.1.0"
 author = [ "nanocryk" ]
+description = "Collection of tools to write cleaner and shorter code"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/nanocryk/nanotricks"
-description = "Collection of tools to write cleaner and shorter code"
+
+[dependencies]
+similar-asserts = { version = "1.5.0", optional = true }
