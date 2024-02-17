@@ -48,9 +48,8 @@ macro_rules! anon_inner {
     }
 }
 
-/// Create a value of an anonymous type with provided fields whose types must be infered from their
-/// usage. The anonymous type automatically derive `Copy`, `Clone`, `Debug`, `PartialEq` and `Eq` if
-/// all fields do so. macro.
+/// Create a value of an anonymous type with provided fields whose types are inferred. The anonymous
+/// type automatically derive `Copy`, `Clone`, `Debug`, `PartialEq` and `Eq` if all fields do so.
 /// ```rust
 /// # use nanotweaks::anon;
 /// let anon = anon!(

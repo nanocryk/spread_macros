@@ -105,8 +105,8 @@ macro_rules! spread_inner {
 /// Extension of the spread/[struct update syntax] that allow taking fields from different type
 /// structs, as long as the listed fields have the same type in both structs.
 ///
-/// Its main goal is to be used to provide partial defaults for a struct that can't fully provide a
-/// default value for all its fields.
+/// It can be used with structs that don't have sensible defaults for each fields by using another
+/// struct that only have the fields with sensible defaults.
 ///
 /// [struct update syntax]:
 ///     https://doc.rust-lang.org/book/ch05-01-defining-structs.html#creating-instances-from-other-instances-with-struct-update-syntax
@@ -151,8 +151,8 @@ macro_rules! spread_inner {
 /// Note here that `source` is consumed if it is not `Copy`. You can use `&source` to extract `Copy`
 /// fields, but it will not work if one of the listed fields is not `Copy`.
 ///
-/// While you make use `source.clone()`, it clones the entire source struct which might not be what
-/// you want or even possible. For that reason, the macro allow to prefix fields with `#[clone]` to
+/// While you may use `source.clone()`, `Clone` might not be implemented, or it might clone
+/// unnecessary fields. For that reason, the macro allow to prefix fields with `#[clone]` to
 /// only clone that particular field.
 /// ```rust,compile_fail
 /// # use nanotweaks::{anon,spread};
