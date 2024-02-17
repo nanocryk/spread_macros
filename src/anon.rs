@@ -24,7 +24,7 @@
 ///
 /// let anon2 = anon! {
 ///     one: 1,
-///     [two, three]: ..anon1,
+///     { two, three } in anon1,
 ///     // the following is not supported:
 ///     // ..another_struct
 /// };
@@ -39,7 +39,7 @@ macro_rules! anon {
             $field:ident $(: $value:expr)? ,
         )*
         $(
-            [ $($spread_field:ident),+ ]: .. $spread:expr,
+            { $($spread_field:ident),+ } in $spread:expr,
         )*
     ) => {
         {
@@ -58,7 +58,7 @@ macro_rules! anon {
             $crate::spread!(
                 Anon {
                     $( $field $(: $value)? , )*
-                    $( [ $($spread_field),+ ]: .. $spread, )*
+                    $( { $($spread_field),+ } in $spread, )*
                 }
             )
         }

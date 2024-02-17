@@ -40,7 +40,7 @@
 /// let user = spread!(User {
 ///     name,
 ///     password: String::from("password"),
-///     [prefered_terminal_font_size, dark_theme]: ..DarkUserDefaults::default(),
+///     { prefered_terminal_font_size, dark_theme } in DarkUserDefaults::default(),
 /// });
 ///
 /// assert_eq!(
@@ -60,7 +60,7 @@ macro_rules! spread {
             $field:ident $(: $field_value:expr)? ,
         )*
         $(
-            [ $($source_field:ident),+ ]: .. $source:expr,
+            { $($source_field:ident),+ } in $source:expr,
         )*
         $(.. $remainder:expr)?
     }) => {

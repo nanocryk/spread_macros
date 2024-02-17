@@ -41,7 +41,7 @@ pub use similar_asserts::assert_eq;
 ///
 /// assert_fields_eq!(exemple, {
 ///     bar: String::from("exemple"),
-///     [baz]: ..expected,
+///     { baz } in expected,
 /// });
 ///
 /// assert_fields_eq!(
@@ -61,7 +61,7 @@ macro_rules! assert_fields_eq {
                 $field:ident $(: $value:expr)? ,
             )*
             $(
-                [ $($spread_field:ident),+ ]: .. $spread:expr,
+                { $($spread_field:ident),+ } in $spread:expr,
             )*
         }
         $(, $($arg:tt)*)?
@@ -69,7 +69,7 @@ macro_rules! assert_fields_eq {
         let right = $crate::anon! {
             $($field $(: $value)? , )*
             $(
-                [ $($spread_field),+ ]: .. $spread,
+                { $($spread_field),+ } in $spread,
             )*
         };
 
