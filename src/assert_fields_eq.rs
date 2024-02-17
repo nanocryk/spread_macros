@@ -3,6 +3,68 @@ pub use core::assert_eq;
 #[cfg(feature = "similar-asserts")]
 pub use similar_asserts::assert_eq;
 
+#[doc(hidden)]
+#[macro_export]
+macro_rules! assert_fields_eq_inner {
+    // anon syntax
+    (
+        $left:expr,
+        {
+            $(
+                $field:ident $(: $value:expr)? ,
+            )*
+            $(
+                { $($spread_field:ident),+ } in $spread:expr,
+            )*
+        }
+        $(, $($arg:tt)*)?
+    ) => {
+        let right = $crate::anon! {
+            $($field $(: $value)? , )*
+            $(
+                { $($spread_field),+ } in &$spread,
+            )*
+        };
+
+        assert_fields_eq!($left, right, [
+            $( $field ,)*
+            $( $($spread_field ,)+ )*
+        ] $(, $($arg)*)?);
+    };
+
+    // list syntax
+    (
+        $left:expr,
+        $right:expr,
+        [$($field:ident),+ $(,)?]
+        $(, $($arg:tt)*)?
+    ) => {
+        {
+            #[allow(non_camel_case_types)]
+            #[derive(Debug, PartialEq, Eq)]
+            struct Fields
+            <
+                'a,
+                $( $field, )+
+            > {
+                $( $field: &'a $field, )+
+            }
+
+            let left = &$left;
+            let left = Fields {
+                $($field: & (left . $field)),+
+            };
+
+            let right = &$right;
+            let right = Fields {
+                $($field: & (right . $field)),+
+            };
+
+            $crate::assert_fields_eq::assert_eq!(left, right $(, $($arg)*)?);
+        }
+    }
+}
+
 /// Asserts that some fields of the provided value match the expectation.
 ///
 /// This expectation can be expressed in 2 ways:
@@ -53,59 +115,5 @@ pub use similar_asserts::assert_eq;
 /// ```
 #[macro_export]
 macro_rules! assert_fields_eq {
-    // anon syntax
-    (
-        $left:expr,
-        {
-            $(
-                $field:ident $(: $value:expr)? ,
-            )*
-            $(
-                { $($spread_field:ident),+ } in $spread:expr,
-            )*
-        }
-        $(, $($arg:tt)*)?
-    ) => {
-        let right = $crate::anon! {
-            $($field $(: $value)? , )*
-            $(
-                { $($spread_field),+ } in $spread,
-            )*
-        };
-
-        assert_fields_eq!($left, right, [
-            $( $field ,)*
-            $( $($spread_field ,)+ )*
-        ] $(, $($arg)*)?);
-    };
-
-    // list syntax
-    (
-        $left:expr,
-        $right:expr,
-        [$($field:ident),+ $(,)?]
-        $(, $($arg:tt)*)?
-    ) => {
-        {
-            #[allow(non_camel_case_types)]
-            #[derive(Debug, PartialEq, Eq)]
-            struct Fields
-            <
-                'a,
-                $( $field, )+
-            > {
-                $( $field: &'a $field, )+
-            }
-
-            let left = Fields {
-                $($field: & ($left . $field)),+
-            };
-
-            let right = Fields {
-                $($field: & ($right . $field)),+
-            };
-
-            $crate::assert_fields_eq::assert_eq!(left, right $(, $($arg)*)?);
-        }
-    }
+    ($($inner:tt)*) => { $crate::assert_fields_eq_inner!($($inner)*)}
 }

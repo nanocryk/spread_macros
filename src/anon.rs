@@ -1,3 +1,53 @@
+#[doc(hidden)]
+#[macro_export]
+macro_rules! anon_inner {
+    (
+        $(
+            $field:ident $(: $value:expr)? ,
+        )*
+        $(
+            $( #[ $($spread_attr:tt)* ] )?
+            {
+                $(
+                    $( #[ $($spread_field_attr:tt)* ] )?
+                    $spread_field:ident
+                ),+
+            } in
+            $spread:expr,
+        )*
+    ) => {
+        {
+            #[allow(non_camel_case_types)]
+            #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            struct Anon
+            <
+                $( $field, )*
+                $($( $spread_field, )+)*
+
+            > {
+                $($field: $field, )*
+                $($( $spread_field: $spread_field, )+)*
+            }
+
+            $crate::spread!(
+                Anon {
+                    $( $field $(: $value)? , )*
+                    $(
+                        $( #[ $( $spread_attr )* ] )?
+                        {
+                            $(
+                                $( #[ $( $spread_field_attr )* ] )?
+                                $spread_field
+                            ),+
+                        }
+                        in $spread,
+                    )*
+                }
+            )
+        }
+    }
+}
+
 /// Create a value of an anonymous type with provided fields whose types must be infered from their
 /// usage. The anonymous type automatically derive `Copy`, `Clone`, `Debug`, `PartialEq` and `Eq` if
 /// all fields do so. macro.
@@ -34,33 +84,5 @@
 /// ```
 #[macro_export]
 macro_rules! anon {
-    (
-        $(
-            $field:ident $(: $value:expr)? ,
-        )*
-        $(
-            { $($spread_field:ident),+ } in $spread:expr,
-        )*
-    ) => {
-        {
-            #[allow(non_camel_case_types)]
-            #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-            struct Anon
-            <
-                $( $field, )*
-                $($( $spread_field, )+)*
-
-            > {
-                $($field: $field, )*
-                $($( $spread_field: $spread_field, )+)*
-            }
-
-            $crate::spread!(
-                Anon {
-                    $( $field $(: $value)? , )*
-                    $( { $($spread_field),+ } in $spread, )*
-                }
-            )
-        }
-    }
+    ($($inner:tt)*) => { $crate::anon_inner!($($inner)*)}
 }
