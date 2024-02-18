@@ -81,7 +81,6 @@ macro_rules! assert_fields_eq_inner {
 ///
 /// ```rust
 /// # use nanotweaks::{anon, assert_fields_eq};
-///
 /// #[derive(Clone, Debug)]
 /// struct Exemple {
 ///     _foo: u32,
