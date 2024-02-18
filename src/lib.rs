@@ -13,6 +13,10 @@ pub use paste::paste;
 #[doc(hidden)]
 pub mod assert_fields_eq;
 
+#[doc(hidden)]
+#[cfg(feature = "serde")]
+pub use serde;
+
 /// Standalone [`Default::default()`] function.
 pub fn default<T: Default>() -> T {
     T::default()

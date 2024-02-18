@@ -19,6 +19,7 @@ macro_rules! anon_inner {
         {
             #[allow(non_camel_case_types)]
             #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            #[cfg_attr(feature = "serde", derive($crate::serde::Serialize))]
             struct Anon
             <
                 $( $field, )*
