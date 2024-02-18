@@ -2,6 +2,7 @@
 
 mod anon;
 mod clone;
+mod fn_struct;
 mod spread;
 
 #[doc(hidden)]
