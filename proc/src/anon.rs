@@ -36,9 +36,15 @@ pub fn anon(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
         .map(|(i, _)| syn::Ident::new(&format!("T{i}"), Span::call_site()))
         .collect();
 
+    #[cfg(feature = "serde_derive")]
+    let serde_derive = Some(quote! { #[derive(serde::Serialize, serde::Deserialize)] });
+    #[cfg(not(feature = "serde_derive"))]
+    let serde_derive = None::<TokenStream>;
+
     quote! {
         {
             #[derive(Copy, Clone, Debug, PartialEq, Eq)]
+            #serde_derive
             struct Anon < #( #fields_type ),* > {
                 #(
                     #fields_name: #fields_type

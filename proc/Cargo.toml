@@ -1,7 +1,10 @@
 [package]
 name = "nanotweaks-proc"
-version = "0.1.0"
+version = "0.3.0"
 edition = "2021"
+
+[features]
+serde_derive = []
 
 [dependencies]
 proc-macro2 = "1.0.78"

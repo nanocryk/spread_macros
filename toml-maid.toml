@@ -1,5 +1,7 @@
 keys = [
+	"workspace",
 	"package",
+	"features",
 	"dependencies",
 	"name",
 	"version",
