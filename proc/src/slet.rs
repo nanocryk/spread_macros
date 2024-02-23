@@ -17,16 +17,13 @@ struct SLet {
 
 impl Parse for SLet {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let braced;
-        let braces = braced!(braced in input);
-
-        let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(&braced)?;
+        let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(&input)?;
 
         // Forbid empty struct
         if items.is_empty() {
             return Err(syn::Error::new(
-                braces.span.join(),
-                "Anon struct must have at least one field",
+                Span::call_site(),
+                "Must list at least one identifier",
             ));
         }
 

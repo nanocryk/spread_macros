@@ -84,7 +84,7 @@ pub use nanotweaks_proc::anon;
 /// let mut name_ref_mut = 42u32;
 ///
 /// {
-///     slet!({
+///     slet! {
 ///         name,
 ///         mut &name_ref,
 ///         &mut name_ref_mut,
@@ -100,7 +100,7 @@ pub use nanotweaks_proc::anon;
 ///             mut +spread_clone,
 ///             +>spread_clone_into,
 ///         } in &mut bar,
-///     });
+///     };
 ///
 ///     // Fields with `>` (Into) needs to be used for their type to be inferred.
 ///     let infered: u64 = name_into;
