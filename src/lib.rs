@@ -226,7 +226,7 @@ pub use nanotweaks_proc::spread;
 ///
 /// fn_struct!(
 ///     Foo
-///     for foo(
+///     for fn foo(
 ///         one: u32 = 1,
 ///         >two: u16 = 2, // converst's from struct's u16 to functions u32
 ///         &three: u32 = 3 // struct stores value, function takes reference
@@ -253,7 +253,7 @@ pub use nanotweaks_proc::spread;
 /// # }
 /// fn_struct!(
 ///     &Foo
-///     for foo(
+///     for fn foo(
 ///         one: u32 = 1,
 ///         >two: u16 = 2,
 ///         &three: u32 = 3
@@ -275,7 +275,7 @@ pub use nanotweaks_proc::spread;
 /// fn_struct!(
 ///     // `T` must be listed here as one of the arguments use it.
 ///     &VecPush<T: Clone>
-///     for Vec::<T>::push(
+///     for fn Vec::<T>::push(
 ///         &mut self,
 ///         +value: T
 ///     )
@@ -284,7 +284,7 @@ pub use nanotweaks_proc::spread;
 /// fn_struct!(
 ///     &VecPop
 ///     // `T` must be listed here as no arguments use it but it is still used by the function.
-///     for<T> Vec::<T>::pop(
+///     for<T> fn Vec::<T>::pop(
 ///         &mut self,
 ///     ) -> Option<T>
 /// );
@@ -308,7 +308,7 @@ pub use nanotweaks_proc::spread;
 /// fn_struct!(
 ///     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 ///     pub VecPush<T: Clone>
-///     for Vec::<T>::push(
+///     for fn Vec::<T>::push(
 ///         &mut self,
 ///         value: T
 ///     )

@@ -158,25 +158,14 @@ impl Parse for FnStruct {
 
         let _for: Token![for] = input.parse()?;
 
-        // Tricky: Here we want to parse generics, however a path starting with a Fully Qualified
-        // Path `<Type>::rest` or `<[_]>::rest` starts like a generic and will cause parsing errors.
-        // For that reason we speculatively parse the path and skip parsing generics if we find such
-        // path.
-        let not_generics = {
-            let fork = input.fork();
-            fork.parse::<syn::ExprPath>().is_ok()
-        };
-
-        let mut call_gen: syn::Generics = if not_generics {
-            Default::default()
-        } else {
-            input.parse()?
-        };
+        let mut call_gen: syn::Generics = input.parse()?;
 
         let lookahead = input.lookahead1();
         if lookahead.peek(Token![where]) {
             call_gen.where_clause = Some(input.parse()?);
         }
+
+        let _: Token![fn] = input.parse()?;
 
         let fn_path = input.parse()?;
 
