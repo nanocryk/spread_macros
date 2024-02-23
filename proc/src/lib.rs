@@ -18,6 +18,7 @@ use {
 
 mod anon;
 mod common;
+mod fn_struct;
 mod slet;
 mod spread;
 
@@ -34,4 +35,9 @@ pub fn anon(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
 #[proc_macro]
 pub fn slet(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     slet::slet(tokens)
+}
+
+#[proc_macro]
+pub fn fn_struct(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    fn_struct::fn_struct(tokens)
 }

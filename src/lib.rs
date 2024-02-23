@@ -212,16 +212,111 @@ pub use nanotweaks_proc::slet;
 /// });
 pub use nanotweaks_proc::spread;
 
-// mod fn_struct;
-
-// #[doc(hidden)]
-// pub use paste::paste;
+/// Generates a struct representing the arguments of a given function or method, allowing to use
+/// Rust's struct update syntax, [`spread!`](crate::spread!) and `Default` with function arguments.
+/// The fields listed can use modifiers from [`spread!`] like `&`, which allows for exemple to call
+/// functions with reference arguments using a struct without references, which can thus implement
+/// `Default`.
+/// ```rust
+/// use nanotweaks::{fn_struct, default};
+///
+/// fn foo(foo: u32, bar: u32, baz: &u32) -> u32 {
+///     foo + bar + baz
+/// }
+///
+/// fn_struct!(
+///     Foo
+///     for foo(
+///         one: u32 = 1,
+///         >two: u16 = 2, // converst's from struct's u16 to functions u32
+///         &three: u32 = 3 // struct stores value, function takes reference
+///     ) -> u32
+/// );
+///
+/// let res = Foo {
+///     three: 33,
+///     ..default()
+/// }
+/// .call();
+///
+/// assert_eq!(res, 1 + 2 + 33);
+/// ```
+///
+/// Note here that `res` is consumed when calling `call`. It can by reused if the name of the struct
+/// is prefixed with `&`, but it requires all the fields to either be `Copy`, passed by reference or
+/// cloned using `+` modifier (or `+>` to clone then convert it).
+/// ```rust
+/// # use nanotweaks::{fn_struct, default};
+/// #
+/// # fn foo(foo: u32, bar: u32, baz: &u32) -> u32 {
+/// #     foo + bar + baz
+/// # }
+/// fn_struct!(
+///     &Foo
+///     for foo(
+///         one: u32 = 1,
+///         >two: u16 = 2,
+///         &three: u32 = 3
+///     ) -> u32
+/// );
+///
+/// let args = Foo {
+///     three: 33,
+///     ..default()
+/// };
+/// args.call();
+/// args.call();
+/// ```
+///
+/// The struct can be generic over the types of the function arguments, while the `call`
+/// function can also be generic over types not appearing in the arguments.
+/// ```rust
+/// # use nanotweaks::fn_struct;
+/// fn_struct!(
+///     // `T` must be listed here as one of the arguments use it.
+///     &VecPush<T: Clone>
+///     for Vec::<T>::push(
+///         &mut self,
+///         +value: T
+///     )
+/// );
+///
+/// fn_struct!(
+///     &VecPop
+///     // `T` must be listed here as no arguments use it but it is still used by the function.
+///     for<T> Vec::<T>::pop(
+///         &mut self,
+///     ) -> Option<T>
+/// );
+///
+/// let mut list = vec![1, 2, 3, 4];
+///
+/// let pop = VecPop { };
+/// pop.call(&mut list);
+/// pop.call(&mut list);
+/// assert_eq!(&list, &[1, 2]);
+///
+/// let push = VecPush { value: 10 };
+/// push.call(&mut list);
+/// push.call(&mut list);
+/// assert_eq!(&list, &[1, 2, 10, 10]);
+/// ```
+///
+/// Struct can be annotated with usual derives and attributes by writing them at the start.
+/// ```rust
+/// # use nanotweaks::fn_struct;
+/// fn_struct!(
+///     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///     pub VecPush<T: Clone>
+///     for Vec::<T>::push(
+///         &mut self,
+///         value: T
+///     )
+/// );
+///
+pub use nanotweaks_proc::fn_struct;
 
 // // public to re-export `assert_eq!` from either `core` or `similar_asserts` based on the
 // // `similar-asserts` feature.
 // #[doc(hidden)]
 // pub mod assert_fields_eq;
-
-// #[doc(hidden)]
-// #[cfg(feature = "serde")]
-// pub use serde;

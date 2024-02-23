@@ -1,4 +1,4 @@
-use super::*;
+use {super::*, syn::ext::IdentExt};
 
 pub enum SpreadItem {
     Field(Field),
@@ -13,6 +13,7 @@ pub struct Field {
     pub value: Option<syn::Expr>,
 }
 
+#[derive(Clone)]
 pub enum SpreadModifier {
     Ref(Token![&]),
     RefMut(Token![&], Token![mut]),
@@ -78,17 +79,8 @@ impl SpreadItem {
     }
 }
 
-impl Parse for Field {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let is_mut = {
-            let lookahead = input.lookahead1();
-            if lookahead.peek(Token![mut]) {
-                Some(input.parse()?)
-            } else {
-                None
-            }
-        };
-
+impl SpreadModifier {
+    pub fn parse(input: ParseStream) -> syn::Result<Option<Self>> {
         let lookahead = input.lookahead1();
 
         let modifier = if lookahead.peek(Token![&]) {
@@ -99,7 +91,7 @@ impl Parse for Field {
             if lookahead.peek(Token![mut]) {
                 let token_mut = input.parse()?;
                 Some(SpreadModifier::RefMut(token_ref, token_mut))
-            } else if lookahead.peek(syn::Ident) {
+            } else if lookahead.peek(syn::Ident::peek_any) {
                 // don't parse it now
                 Some(SpreadModifier::Ref(token_ref))
             } else {
@@ -116,18 +108,35 @@ impl Parse for Field {
             if lookahead.peek(Token![>]) {
                 let token_into = input.parse()?;
                 Some(SpreadModifier::CloneInto(token_clone, token_into))
-            } else if lookahead.peek(syn::Ident) {
+            } else if lookahead.peek(syn::Ident::peek_any) {
                 // don't parse it now
                 Some(SpreadModifier::Clone(token_clone))
             } else {
                 Err(lookahead.error())?
             }
-        } else if lookahead.peek(syn::Ident) {
+        } else if lookahead.peek(syn::Ident::peek_any) {
             // don't parse it now
             None
         } else {
             Err(lookahead.error())?
         };
+
+        Ok(modifier)
+    }
+}
+
+impl Parse for Field {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let is_mut = {
+            let lookahead = input.lookahead1();
+            if lookahead.peek(Token![mut]) {
+                Some(input.parse()?)
+            } else {
+                None
+            }
+        };
+
+        let modifier = SpreadModifier::parse(input)?;
 
         let name = input.parse()?;
 
@@ -160,7 +169,7 @@ impl Field {
         quote! { #name: #value_with_modifiers }.into()
     }
 
-    fn value_with_modifiers(&self, source: proc_macro2::TokenStream) -> TokenStream {
+    pub fn value_with_modifiers(&self, source: proc_macro2::TokenStream) -> TokenStream {
         match self.modifier {
             Some(SpreadModifier::Ref(token_ref)) => {
                 quote! { #token_ref #source }
