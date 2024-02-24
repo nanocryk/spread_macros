@@ -225,10 +225,10 @@ pub use nanotweaks_proc::spread;
 /// }
 ///
 /// fn_struct!(
-///     Foo
+///     struct Foo
 ///     for fn foo(
 ///         one: u32 = 1,
-///         >two: u16 = 2, // converst's from struct's u16 to functions u32
+///         >two: u16 = 2, // converts from struct's u16 to functions u32
 ///         &three: u32 = 3 // struct stores value, function takes reference
 ///     ) -> u32
 /// );
@@ -252,7 +252,7 @@ pub use nanotweaks_proc::spread;
 /// #     foo + bar + baz
 /// # }
 /// fn_struct!(
-///     &Foo
+///     struct &Foo
 ///     for fn foo(
 ///         one: u32 = 1,
 ///         >two: u16 = 2,
@@ -274,15 +274,16 @@ pub use nanotweaks_proc::spread;
 /// # use nanotweaks::fn_struct;
 /// fn_struct!(
 ///     // `T` must be listed here as one of the arguments use it.
-///     &VecPush<T: Clone>
+///     struct &VecPush<T: Clone>
 ///     for fn Vec::<T>::push(
 ///         &mut self,
 ///         +value: T
-///     )
-/// );
+///     );
 ///
-/// fn_struct!(
-///     &VecPop
+///     // note that we can declare multiple structs in a single macro call by
+///     // separating them with `;`.
+///
+///     struct &VecPop
 ///     // `T` must be listed here as no arguments use it but it is still used by the function.
 ///     for<T> fn Vec::<T>::pop(
 ///         &mut self,
@@ -307,7 +308,7 @@ pub use nanotweaks_proc::spread;
 /// # use nanotweaks::fn_struct;
 /// fn_struct!(
 ///     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-///     pub VecPush<T: Clone>
+///     pub struct VecPush<T: Clone>
 ///     for fn Vec::<T>::push(
 ///         &mut self,
 ///         value: T
