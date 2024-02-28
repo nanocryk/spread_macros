@@ -17,6 +17,7 @@ use {
 };
 
 mod anon;
+mod assert_fields_eq;
 mod common;
 mod fn_struct;
 mod slet;
@@ -40,4 +41,9 @@ pub fn slet(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
 #[proc_macro]
 pub fn fn_struct(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     fn_struct::fn_struct(tokens)
+}
+
+#[proc_macro]
+pub fn assert_fields_eq(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    assert_fields_eq::assert_fields_eq(tokens)
 }

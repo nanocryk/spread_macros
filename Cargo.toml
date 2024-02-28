@@ -15,6 +15,4 @@ serde_derive = [ "nanotweaks-proc/serde_derive" ]
 
 [dependencies]
 nanotweaks-proc = { path = "proc" }
-paste = "1.0.14"
 serde = { version = "1", features = [ "derive" ], default-features = false, optional = true }
-similar-asserts = { version = "1.5.0", optional = true }

@@ -317,7 +317,49 @@ pub use nanotweaks_proc::spread;
 ///
 pub use nanotweaks_proc::fn_struct;
 
-// // public to re-export `assert_eq!` from either `core` or `similar_asserts` based on the
-// // `similar-asserts` feature.
-// #[doc(hidden)]
-// pub mod assert_fields_eq;
+/// Asserts that some fields of the provided value match the expectation.
+///
+/// This expectation can be expressed in 2 ways:
+/// - Another value can be provided, followed by a list of fields both values have in common
+///   and should be equal.
+/// - An anonymous struct with the same syntax as [`anon!`](crate::anon!).
+///
+/// Afterward, the macro accepts a custom panic message with formating like [`assert_eq!`](core::assert_eq!).
+///
+/// It uses the in-scope `assert_eq!` macro, which allows to use alternative macros like
+/// `similar_asserts::assert_eq!` if wanted.
+///
+/// ```rust
+/// # use nanotweaks::{anon, assert_fields_eq};
+/// #[derive(Clone, Debug)]
+/// struct Exemple {
+///     _foo: u32,
+///     bar: String,
+///     baz: bool,
+/// }
+///
+/// let exemple = Exemple {
+///     _foo: 42,
+///     bar: String::from("exemple"),
+///     baz: true,
+/// };
+///
+/// let expected = anon! {
+///     bar: String::from("exemple"),
+///     baz: true,
+///     other: "other",
+/// };
+///
+/// assert_fields_eq!(exemple, {
+///     bar: String::from("exemple"),
+///     { +baz } in &expected,
+/// });
+///
+/// assert_fields_eq!(
+///     exemple,
+///     expected,
+///     [bar, baz],
+///     "unexpected fields in {exemple:?}"
+/// );
+/// ```
+pub use nanotweaks_proc::assert_fields_eq;
