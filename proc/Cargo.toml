@@ -2,6 +2,10 @@
 name = "nanotweaks-proc"
 version = "0.3.0"
 edition = "2021"
+authors = [ "nanocryk" ]
+description = "Proc-macro crates for `nanotweaks`"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/nanocryk/nanotweaks"
 
 [features]
 serde_derive = []
