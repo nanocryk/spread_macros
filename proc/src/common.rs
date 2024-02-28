@@ -166,7 +166,7 @@ impl Field {
         let name = &self.name;
         let value_with_modifiers = self.value_with_modifiers(source);
 
-        quote! { #name: #value_with_modifiers }.into()
+        quote! { #name: #value_with_modifiers }
     }
 
     pub fn value_with_modifiers(&self, source: proc_macro2::TokenStream) -> TokenStream {
@@ -192,7 +192,6 @@ impl Field {
             }
             None => quote! { #source },
         }
-        .into()
     }
 }
 

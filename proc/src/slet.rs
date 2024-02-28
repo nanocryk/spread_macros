@@ -17,7 +17,7 @@ struct SLet {
 
 impl Parse for SLet {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(&input)?;
+        let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(input)?;
 
         // Forbid empty struct
         if items.is_empty() {

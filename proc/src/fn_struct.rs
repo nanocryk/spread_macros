@@ -102,7 +102,6 @@ impl FnStruct {
                         "only `&`, `&mut` or no modifier is allows before `self`",
                     )
                     .into_compile_error()
-                    .into()
                 }
             };
 
@@ -126,8 +125,7 @@ impl FnStruct {
                         fn_path.span(),
                         "Cannot use `self` with a function that is not a method",
                     )
-                    .into_compile_error()
-                    .into();
+                    .into_compile_error();
                 }
                 self_type.path.segments.pop_punct();
 

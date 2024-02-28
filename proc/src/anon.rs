@@ -2,7 +2,6 @@ use super::{common::*, *};
 
 pub fn anon(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let anon = parse_macro_input!(tokens as Anon);
-
     anon.expand().into()
 }
 
@@ -76,7 +75,7 @@ impl Anon {
 
 impl Parse for Anon {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(&input)?;
+        let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(input)?;
 
         // Forbid empty struct
         if items.is_empty() {
