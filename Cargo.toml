@@ -14,5 +14,5 @@ repository = "https://github.com/nanocryk/nanotweaks"
 serde_derive = [ "nanotweaks-proc/serde_derive" ]
 
 [dependencies]
-nanotweaks-proc = { path = "proc" }
+nanotweaks-proc = { version = "0.3.0", path = "proc" }
 serde = { version = "1", features = [ "derive" ], default-features = false, optional = true }
