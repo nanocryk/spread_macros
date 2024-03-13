@@ -1,10 +1,10 @@
-# nanotweaks
+# spread-macros
 
-[![nanotweaks
-crate](https://img.shields.io/crates/v/nanotweaks.svg)](https://crates.io/crates/nanotweaks)
-[![nanotweaks documentation](https://docs.rs/nanotweaks/badge.svg)](https://docs.rs/nanotweaks)
+[![spread-macros
+crate](https://img.shields.io/crates/v/spread-macros.svg)](https://crates.io/crates/spread-macros)
+[![spread-macros documentation](https://docs.rs/spread-macros/badge.svg)](https://docs.rs/spread-macros)
 
-A collection of tools to write cleaner and shorter code.
+Macros around an extended spread syntax.
 
 ## `spread!`
 
@@ -22,9 +22,9 @@ features as `spread!` (lists and modifiers) except for the final struct update s
 ## `slet!`
 
 Avoids having to write a lot of transforations like `let variable_with_long_name =
-variable_with_long_name.clone()` (which is common in async code) by listing all the identifiers and
-transformations with the same syntax as `anon!`. In additation, each field name can be prefixed by
-`mut` (before a potential modifier) to make a `let mut` binding.
+variable_with_long_name.clone()` (which is common with closures and async blocks) by listing all the
+identifiers and transformations with the same syntax as `anon!`. In additation, each field name can
+be prefixed by `mut` (before a potential modifier) to make a `let mut` binding.
 
 ## `fn_struct!`
 
@@ -51,10 +51,6 @@ Afterward, the macro accepts a custom panic message with formating like `assert_
 
 It uses the in-scope `assert_eq!` macro, which allows to use alternative macros like
 `similar_asserts::assert_eq!` if wanted.
-
-## `default`
-
-Turbofish variant of `Default::default()`, mostly to use with struct update syntax or `spread!`.
 
 ## Features
 

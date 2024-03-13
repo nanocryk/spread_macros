@@ -1,18 +1,19 @@
-[workspace]
-members = [ "proc" ]
-
 [package]
-name = "nanotweaks"
-version = "0.3.0"
+name = "spread_macros"
+version = "0.1.0"
 authors = [ "nanocryk" ]
-description = "Collection of tools to write cleaner and shorter code"
+description = "Macros around an extended spread syntax"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/nanocryk/nanotweaks"
 
 [features]
-serde_derive = [ "nanotweaks-proc/serde_derive" ]
+serde_derive = []
 
 [dependencies]
-nanotweaks-proc = { version = "0.3.0", path = "proc" }
-serde = { version = "1", features = [ "derive" ], default-features = false, optional = true }
+proc-macro2 = "1.0.78"
+quote = "1.0.35"
+syn = "2.0.50"
+
+[lib]
+proc-macro = true

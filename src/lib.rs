@@ -1,115 +1,26 @@
 #![doc = include_str!("../README.md")]
 
-/// Standalone [`Default::default()`] function.
-pub fn default<T: Default>() -> T {
-    T::default()
-}
+mod anon;
+mod assert_fields_eq;
+mod common;
+mod fn_struct;
+mod slet;
+mod spread;
 
-/// Create a value of an anonymous struct with provided fields whose types are inferred.
-/// The syntax is the same as [`spread!`](crate::spread!) without the struct name, and without
-/// the ability to use the `..remaining` syntax.
-/// ```rust
-/// use nanotweaks::anon;
-///
-/// #[derive(Clone, Debug, Default)]
-/// struct Bar {
-///     spread: u32,
-///     spread_ref: u32,
-///     spread_ref_mut: u32,
-///     spread_into: u32,
-///     spread_clone: u32,
-///     spread_clone_into: u32,
-/// }
-///
-/// let mut bar = Bar::default();
-/// let name = 42u32;
-/// let name_ref = 42u32;
-/// let name_into = 42u32;
-/// let name_clone = 42u32;
-/// let name_clone_into = 42u32;
-/// let mut name_ref_mut = 42u32;
-///
-/// let anon = anon!{
-///     name,
-///     &name_ref,
-///     &mut name_ref_mut,
-///     >name_into,
-///     +name_clone,
-///     +>name_clone_into,
-///     value: 42,
-///     {
-///         spread,
-///         &spread_ref,
-///         &mut spread_ref_mut,
-///         >spread_into,
-///         +spread_clone,
-///         +>spread_clone_into,
-///     } in &mut bar,
-/// };
-///
-/// // Fields with `>` (Into) needs to be used for their type to be inferred.
-/// let infered: u64 = anon.name_into;
-/// let infered: u64 = anon.name_clone_into;
-/// let infered: u64 = anon.spread_into;
-/// let infered: u64 = anon.spread_clone_into;
-/// ```
-pub use nanotweaks_proc::anon;
-
-/// Allows to perform multiple `let` bindings with the same syntax as [`anon!`](crate::anon!),
-/// modifiers included. It is expected to be used in places where a lot of transformations are
-/// performed, such as lots of clones before moving values in a closure or async block.
-///
-/// Each field name can be prefixed (before a potential modifier) but `mut` to perform a `let mut`
-/// binding.
-///
-/// ```rust
-/// use nanotweaks::slet;
-///
-/// #[derive(Clone, Debug, Default)]
-/// struct Bar {
-///     spread: u32,
-///     spread_ref: u32,
-///     spread_ref_mut: u32,
-///     spread_into: u32,
-///     spread_clone: u32,
-///     spread_clone_into: u32,
-/// }
-///
-/// let mut bar = Bar::default();
-/// let name = 42u32;
-/// let name_ref = 42u32;
-/// let name_into = 42u32;
-/// let name_clone = 42u32;
-/// let name_clone_into = 42u32;
-/// let mut name_ref_mut = 42u32;
-///
-/// {
-///     slet! {
-///         name,
-///         mut &name_ref,
-///         &mut name_ref_mut,
-///         mut >name_into,
-///         +name_clone,
-///         mut +>name_clone_into,
-///         value: 42,
-///         {
-///             mut spread,
-///             &spread_ref,
-///             mut &mut spread_ref_mut,
-///             >spread_into,
-///             mut +spread_clone,
-///             +>spread_clone_into,
-///         } in &mut bar,
-///     };
-///
-///     // Fields with `>` (Into) needs to be used for their type to be inferred.
-///     let infered: u64 = name_into;
-///     let infered: u64 = name_clone_into;
-///     let infered: u64 = spread_into;
-///     let infered: u64 = spread_clone_into;
-/// }
-/// ```
-pub use nanotweaks_proc::slet;
+use {
+    proc_macro2::{Span, TokenStream},
+    quote::{quote, quote_spanned},
+    std::fmt::Write,
+    syn::{
+        braced,
+        parse::{Parse, ParseStream},
+        parse_macro_input,
+        punctuated::Punctuated,
+        spanned::Spanned,
+        token::Brace,
+        Token,
+    },
+};
 
 /// Extension of the spread/[struct update syntax] that allow taking fields from different type
 /// structs, as long as the listed fields have the same type in both structs.
@@ -140,7 +51,7 @@ pub use nanotweaks_proc::slet;
 /// Here is an exemple showing all the modifers:
 ///
 /// ```rust
-/// use nanotweaks::spread;
+/// use spread_macros::spread;
 ///
 /// #[derive(Debug)]
 /// struct Foo<'a> {
@@ -210,7 +121,122 @@ pub use nanotweaks_proc::slet;
 ///     value: 42,
 ///     ..first
 /// });
-pub use nanotweaks_proc::spread;
+#[proc_macro]
+pub fn spread(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    spread::spread(tokens)
+}
+
+/// Create a value of an anonymous struct with provided fields whose types are inferred.
+/// The syntax is the same as [`spread!`](crate::spread!) without the struct name, and without
+/// the ability to use the `..remaining` syntax.
+/// ```rust
+/// use spread_macros::anon;
+///
+/// #[derive(Clone, Debug, Default)]
+/// struct Bar {
+///     spread: u32,
+///     spread_ref: u32,
+///     spread_ref_mut: u32,
+///     spread_into: u32,
+///     spread_clone: u32,
+///     spread_clone_into: u32,
+/// }
+///
+/// let mut bar = Bar::default();
+/// let name = 42u32;
+/// let name_ref = 42u32;
+/// let name_into = 42u32;
+/// let name_clone = 42u32;
+/// let name_clone_into = 42u32;
+/// let mut name_ref_mut = 42u32;
+///
+/// let anon = anon!{
+///     name,
+///     &name_ref,
+///     &mut name_ref_mut,
+///     >name_into,
+///     +name_clone,
+///     +>name_clone_into,
+///     value: 42,
+///     {
+///         spread,
+///         &spread_ref,
+///         &mut spread_ref_mut,
+///         >spread_into,
+///         +spread_clone,
+///         +>spread_clone_into,
+///     } in &mut bar,
+/// };
+///
+/// // Fields with `>` (Into) needs to be used for their type to be inferred.
+/// let infered: u64 = anon.name_into;
+/// let infered: u64 = anon.name_clone_into;
+/// let infered: u64 = anon.spread_into;
+/// let infered: u64 = anon.spread_clone_into;
+/// ```
+#[proc_macro]
+pub fn anon(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    anon::anon(tokens)
+}
+
+/// Allows to perform multiple `let` bindings with the same syntax as [`anon!`](crate::anon!),
+/// modifiers included. It is expected to be used in places where a lot of transformations are
+/// performed, such as lots of clones before moving values in a closure or async block.
+///
+/// Each field name can be prefixed (before a potential modifier) but `mut` to perform a `let mut`
+/// binding.
+///
+/// ```rust
+/// use spread_macros::slet;
+///
+/// #[derive(Clone, Debug, Default)]
+/// struct Bar {
+///     spread: u32,
+///     spread_ref: u32,
+///     spread_ref_mut: u32,
+///     spread_into: u32,
+///     spread_clone: u32,
+///     spread_clone_into: u32,
+/// }
+///
+/// let mut bar = Bar::default();
+/// let name = 42u32;
+/// let name_ref = 42u32;
+/// let name_into = 42u32;
+/// let name_clone = 42u32;
+/// let name_clone_into = 42u32;
+/// let mut name_ref_mut = 42u32;
+///
+/// {
+///     slet! {
+///         name,
+///         mut &name_ref,
+///         &mut name_ref_mut,
+///         mut >name_into,
+///         +name_clone,
+///         mut +>name_clone_into,
+///         value: 42,
+///         {
+///             mut spread,
+///             &spread_ref,
+///             mut &mut spread_ref_mut,
+///             >spread_into,
+///             mut +spread_clone,
+///             +>spread_clone_into,
+///         } in &mut bar,
+///     };
+///
+///     // Fields with `>` (Into) needs to be used for their type to be inferred.
+///     let infered: u64 = name_into;
+///     let infered: u64 = name_clone_into;
+///     let infered: u64 = spread_into;
+///     let infered: u64 = spread_clone_into;
+/// }
+/// ```
+#[proc_macro]
+pub fn slet(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    slet::slet(tokens)
+}
 
 /// Generates a struct representing the arguments of a given function or method, allowing to use
 /// Rust's struct update syntax, [`spread!`](crate::spread!) and `Default` with function arguments.
@@ -218,7 +244,7 @@ pub use nanotweaks_proc::spread;
 /// functions with reference arguments using a struct without references, which can thus implement
 /// `Default`.
 /// ```rust
-/// use nanotweaks::{fn_struct, default};
+/// use spread_macros::fn_struct;
 ///
 /// fn foo(foo: u32, bar: u32, baz: &u32) -> u32 {
 ///     foo + bar + baz
@@ -235,7 +261,7 @@ pub use nanotweaks_proc::spread;
 ///
 /// let res = Foo {
 ///     three: 33,
-///     ..default()
+///     ..Default::default()
 /// }
 /// .call();
 ///
@@ -246,7 +272,7 @@ pub use nanotweaks_proc::spread;
 /// is prefixed with `&`, but it requires all the fields to either be `Copy`, passed by reference or
 /// cloned using `+` modifier (or `+>` to clone then convert it).
 /// ```rust
-/// # use nanotweaks::{fn_struct, default};
+/// # use spread_macros::fn_struct;
 /// #
 /// # fn foo(foo: u32, bar: u32, baz: &u32) -> u32 {
 /// #     foo + bar + baz
@@ -262,7 +288,7 @@ pub use nanotweaks_proc::spread;
 ///
 /// let args = Foo {
 ///     three: 33,
-///     ..default()
+///     ..Default::default()
 /// };
 /// args.call();
 /// args.call();
@@ -271,7 +297,7 @@ pub use nanotweaks_proc::spread;
 /// The struct can be generic over the types of the function arguments, while the `call`
 /// function can also be generic over types not appearing in the arguments.
 /// ```rust
-/// # use nanotweaks::fn_struct;
+/// # use spread_macros::fn_struct;
 /// fn_struct!(
 ///     // `T` must be listed here as one of the arguments use it.
 ///     struct &VecPush<T: Clone>
@@ -305,7 +331,7 @@ pub use nanotweaks_proc::spread;
 ///
 /// Struct can be annotated with usual derives and attributes by writing them at the start.
 /// ```rust
-/// # use nanotweaks::fn_struct;
+/// # use spread_macros::fn_struct;
 /// fn_struct!(
 ///     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 ///     pub struct VecPush<T: Clone>
@@ -314,8 +340,11 @@ pub use nanotweaks_proc::spread;
 ///         value: T
 ///     )
 /// );
-///
-pub use nanotweaks_proc::fn_struct;
+/// ```
+#[proc_macro]
+pub fn fn_struct(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    fn_struct::fn_struct(tokens)
+}
 
 /// Asserts that some fields of the provided value match the expectation.
 ///
@@ -330,7 +359,7 @@ pub use nanotweaks_proc::fn_struct;
 /// `similar_asserts::assert_eq!` if wanted.
 ///
 /// ```rust
-/// # use nanotweaks::{anon, assert_fields_eq};
+/// # use spread_macros::{anon, assert_fields_eq};
 /// #[derive(Clone, Debug)]
 /// struct Exemple {
 ///     _foo: u32,
@@ -362,4 +391,7 @@ pub use nanotweaks_proc::fn_struct;
 ///     "unexpected fields in {exemple:?}"
 /// );
 /// ```
-pub use nanotweaks_proc::assert_fields_eq;
+#[proc_macro]
+pub fn assert_fields_eq(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    assert_fields_eq::assert_fields_eq(tokens)
+}
