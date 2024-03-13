@@ -1,8 +1,6 @@
-# spread-macros
-
-[![spread-macros
-crate](https://img.shields.io/crates/v/spread-macros.svg)](https://crates.io/crates/spread-macros)
-[![spread-macros documentation](https://docs.rs/spread-macros/badge.svg)](https://docs.rs/spread-macros)
+[![spread_macros
+crate](https://img.shields.io/crates/v/spread_macros.svg)](https://crates.io/crates/spread_macros)
+[![spread_macros documentation](https://docs.rs/spread_macros/badge.svg)](https://docs.rs/spread_macros)
 
 Macros around an extended spread syntax.
 

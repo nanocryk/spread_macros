@@ -5,7 +5,7 @@ authors = [ "nanocryk" ]
 description = "Macros around an extended spread syntax"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/nanocryk/nanotweaks"
+repository = "https://github.com/nanocryk/spread_macros"
 
 [features]
 serde_derive = []
