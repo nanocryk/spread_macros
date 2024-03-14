@@ -1,6 +1,6 @@
 [package]
 name = "spread_macros"
-version = "0.1.0"
+version = "0.1.1"
 authors = [ "nanocryk" ]
 description = "Macros around an extended spread syntax"
 edition = "2021"
