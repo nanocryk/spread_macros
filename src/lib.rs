@@ -143,6 +143,11 @@ pub fn spread(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
 /// Create a value of an anonymous struct with provided fields whose types are inferred.
 /// The syntax is the same as [`spread!`](crate::spread!) without the struct name, and without
 /// the ability to use the `..remaining` syntax.
+///
+/// The anonymous struct is automatically annotated with `#[derive(Copy, Clone, Debug, PartialEq, Eq)]`.
+/// If other attributes are needed they can be provided with outer attributes syntax `#![...]` before
+/// the fields.
+///
 /// ```rust
 /// use spread_macros::anon;
 ///
@@ -165,6 +170,7 @@ pub fn spread(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
 /// let mut name_ref_mut = 42u32;
 ///
 /// let anon = anon!{
+///     #![derive(Hash)]
 ///     name,
 ///     &name_ref,
 ///     &mut name_ref_mut,

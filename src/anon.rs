@@ -6,12 +6,18 @@ pub fn anon(tokens: proc_macro::TokenStream) -> proc_macro::TokenStream {
 }
 
 pub struct Anon {
+    pub attrs: Vec<syn::Attribute>,
     pub items: Punctuated<SpreadItem, Token![,]>,
 }
 
 impl Anon {
     pub fn expand(self) -> TokenStream {
-        let Self { items } = self;
+        let Self { mut attrs, items } = self;
+
+        // Transforn inner attributes `#![...]` into outer attributes `#[...]`
+        for attr in &mut attrs {
+            attr.style = syn::AttrStyle::Outer;
+        }
 
         let let_sources = items.iter().filter_map(|item| match item {
             SpreadItem::SpreadList(SpreadList {
@@ -48,15 +54,10 @@ impl Anon {
             .map(|(i, _)| syn::Ident::new(&format!("T{i}"), Span::call_site()))
             .collect();
 
-        #[cfg(feature = "serde_derive")]
-        let serde_derive = Some(quote! { #[derive(serde::Serialize, serde::Deserialize)] });
-        #[cfg(not(feature = "serde_derive"))]
-        let serde_derive = None::<TokenStream>;
-
         quote! {
             {
                 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-                #serde_derive
+                #(#attrs)*
                 struct Anon < #( #fields_type ),* > {
                     #(
                         #fields_name: #fields_type
@@ -75,6 +76,8 @@ impl Anon {
 
 impl Parse for Anon {
     fn parse(input: ParseStream) -> syn::Result<Self> {
+        let attrs = input.call(syn::Attribute::parse_inner)?;
+
         let items = Punctuated::<SpreadItem, Token![,]>::parse_terminated(input)?;
 
         // Forbid empty struct
@@ -121,6 +124,6 @@ impl Parse for Anon {
             }
         }
 
-        Ok(Self { items })
+        Ok(Self { attrs, items })
     }
 }

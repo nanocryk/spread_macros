@@ -7,9 +7,6 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/nanocryk/spread_macros"
 
-[features]
-serde_derive = []
-
 [dependencies]
 proc-macro2 = "1.0.78"
 quote = "1.0.35"
