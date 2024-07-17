@@ -8,8 +8,8 @@ Macros around an extended spread syntax.
 
 An extension of the spread/struct update syntax that allow taking fields from different type
 structs, as long as the listed fields have the same type in both structs. It supports modifier
-prefixes allowing to perform common transformations, such as cloning, converting or taking a
-reference.
+prefixes allowing to perform common transformations, such as cloning, converting, taking a
+reference; or even custom transformation by providing a function path.
 
 ```rust
 use spread_macros::spread;
@@ -18,18 +18,21 @@ struct Foo {
     one: String,
     two: u32,
     three: u32,
+    four: &'static str,
 }
 
 struct Bar<'a> {
     one: String,
     two: u64,
     three: &'a u32,
+    four: String,
 }
 
 let foo = Foo {
     one: "Hello".to_string(),
     two: 2,
     three: 3,
+    four: "HELLO",
 };
 
 let two = 2u32;
@@ -37,7 +40,8 @@ let bar = spread!(Bar {
     >two, // calls .into()
     {
         +one, // calls .clone()
-        &three // takes a reference
+        &three, // takes a reference
+        [str::to_lowercase] four,
     } in &foo,
 });
 ```

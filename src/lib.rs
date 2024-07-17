@@ -47,11 +47,18 @@ use {
 /// - `>field`: converts the value with `Into`
 /// - `+>field`: clones then converts the value with `Into`, can be used with `&source` to not
 /// consume the source
+/// - `[path] field`: pass the value to function at `path`. This path can contain module separators and turbofish.
+///   You can use this to perform custom transformations, or use more explicit alternatives to `+` and `>`. `field`
+///   can be prefixed with `&` or `&mut` to pass a reference to the function instead of moving/copying it.
 ///
 /// Here is an exemple showing all the modifers:
 ///
 /// ```rust
 /// use spread_macros::spread;
+///
+/// fn to_lowercase(s: impl AsRef<str>) -> String {
+///     s.as_ref().to_lowercase()
+/// }
 ///
 /// #[derive(Debug)]
 /// struct Foo<'a> {
@@ -61,6 +68,7 @@ use {
 ///     name_into: u64,
 ///     name_clone: u32,
 ///     name_clone_into: u64,
+///     custom: String,
 ///
 ///     value: u32,
 ///
@@ -70,6 +78,7 @@ use {
 ///     spread_into: u64,
 ///     spread_clone: u32,
 ///     spread_clone_into: u64,
+///     spread_custom: String,
 ///
 ///     other: u32,
 /// }
@@ -82,6 +91,7 @@ use {
 ///     spread_into: u32,
 ///     spread_clone: u32,
 ///     spread_clone_into: u32,
+///     spread_custom: String,
 ///
 ///     other: u32,
 /// }
@@ -93,6 +103,7 @@ use {
 /// let name_clone = 42u32;
 /// let name_clone_into = 42u32;
 /// let mut name_ref_mut = 42u32;
+/// let custom = "HELLO WORLD";
 ///
 /// let first = spread!(Foo {
 ///     name,
@@ -102,6 +113,7 @@ use {
 ///     +name_clone,
 ///     +>name_clone_into,
 ///     value: 42,
+///     [to_lowercase] custom,
 ///     {
 ///         spread,
 ///         &spread_ref,
@@ -109,6 +121,7 @@ use {
 ///         >spread_into,
 ///         +spread_clone,
 ///         +>spread_clone_into,
+///         [to_lowercase] &spread_custom,
 ///     } in &mut bar,
 ///     >other: 42u16,
 /// });
@@ -119,6 +132,7 @@ use {
 ///     +name_clone,
 ///     +>name_clone_into,
 ///     value: 42,
+///     [to_lowercase] custom,
 ///     ..first
 /// });
 #[proc_macro]

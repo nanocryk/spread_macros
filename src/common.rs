@@ -20,6 +20,9 @@ pub enum SpreadModifier {
     Into(Token![>]),
     Clone(Token![+]),
     CloneInto(Token![+], Token![>]),
+    Custom(syn::Path),
+    CustomRef(syn::Path, Token![&]),
+    CustomRefMut(syn::Path, Token![&], Token![mut]),
 }
 
 pub struct SpreadList {
@@ -114,6 +117,34 @@ impl SpreadModifier {
             } else {
                 Err(lookahead.error())?
             }
+        } else if lookahead.peek(syn::token::Bracket) {
+            let bracket_content;
+            let _brackets = syn::bracketed!(bracket_content in input);
+            let custom_path = bracket_content.parse()?;
+
+            let lookahead = input.lookahead1();
+
+            if lookahead.peek(Token![&]) {
+                let token_ref = input.parse()?;
+
+                let lookahead = input.lookahead1();
+
+                if lookahead.peek(Token![mut]) {
+                    let token_mut = input.parse()?;
+                    Some(SpreadModifier::CustomRefMut(
+                        custom_path,
+                        token_ref,
+                        token_mut,
+                    ))
+                } else if lookahead.peek(syn::Ident::peek_any) {
+                    // don't parse it now
+                    Some(SpreadModifier::CustomRef(custom_path, token_ref))
+                } else {
+                    Err(lookahead.error())?
+                }
+            } else {
+                Some(SpreadModifier::Custom(custom_path))
+            }
         } else if lookahead.peek(syn::Ident::peek_any) {
             // don't parse it now
             None
@@ -170,7 +201,7 @@ impl Field {
     }
 
     pub fn value_with_modifiers(&self, source: proc_macro2::TokenStream) -> TokenStream {
-        match self.modifier {
+        match &self.modifier {
             Some(SpreadModifier::Ref(token_ref)) => {
                 quote! { #token_ref #source }
             }
@@ -189,6 +220,15 @@ impl Field {
                 let clone = quote_spanned!(token_clone.span()=> .clone());
                 let into = quote_spanned!(token_into.span()=> .into());
                 quote! { #source #clone #into }
+            }
+            Some(SpreadModifier::Custom(path)) => {
+                quote! { #path ( #source )}
+            }
+            Some(SpreadModifier::CustomRef(path, token_ref)) => {
+                quote! { #path ( #token_ref #source )}
+            }
+            Some(SpreadModifier::CustomRefMut(path, token_ref, token_mut)) => {
+                quote! { #path ( #token_ref #token_mut #source )}
             }
             None => quote! { #source },
         }
